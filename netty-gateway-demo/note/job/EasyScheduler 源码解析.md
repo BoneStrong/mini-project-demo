@@ -41,6 +41,11 @@
 4. 接着processInstance被扔给MasterExecThread进行处理，进入masterExecThread流程
 5. 线程休眠一秒，减少扫描command表频率，释放分布式锁
 
+关于Command，这里的command可以理解成交给master执行的请求，一般是工作流实例的执行/终止请求。
+Command的来源有两个地方：
+- Api提供的接口触发工作流实例的执行/终止，都会生成commad持久化到数据库
+- MasterServer 启动时会启动quartz,触发ProcessScheduleJob，生成Command持久化到数据库
+
 #### masterExecThread流程
 
 1. 检查processInstance状态
@@ -231,5 +236,7 @@ QuartzSchedulerThread线程是quartz执行的核心线程，贯穿quartz整个�
 
 ### quartz和easyScheduler联系
 
-通过quartz原理部分可以大致了解，easyScheduler将工作流定义视为job，工作流实例上面设置触发器，相当于触发器和job绑定。quartz触发工作流实例的调度后，master将工作流的任务分析组合成DAG，拆分成task，交给work节点执行
+通过quartz原理部分可以大致了解，easyScheduler将工作流定义视为job，工作流定义上面设置触发器，相当于触发器和job绑定。
+quartz触发工作流定义的调度后，会不停的生成工作流实例，工作流实例算是一群任务实例的集合。
+接着master将工作流实例的任务分析组合成DAG，拆分成task，交给work节点执行
 
