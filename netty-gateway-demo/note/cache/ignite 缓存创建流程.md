@@ -64,4 +64,14 @@
 - 接着GridReduceQueryExecutor进行reduceQuery,本质是重新构建GridH2QueryRequest 发送到所有集群节点，然后awaitAllReplies等待所有响应结果进行汇总
 
 
+### control.sh请求执行流程
+server端网络请求流程基本相似
+1. GridNioServer监听链接
+2. GridNioServer$AbstractNioClientWorker进行Nio key选择，processSelectedKey
+3. 触发processRead->GridNioServer 进行消息pipeline处理,消息流入GridNioFilterChain
+4. FilterChain尾部的TailFilter 触发onMessage,这里面有GridTcpRestNioListener
+5. GridTcpRestNioListener 调用 **GridRestProcessor** 进行异步处理
+6. GridTaskCommandHandler 对消息进行分类处理，比如执行的是 "control.sh --meta list"命令，
+    对应服务端执行的是 MetadataListJob ,具体是 MetadataInfoTask。
+7. MetadataTask 的任务大部分是支持 IgniteCompute 进行map/reduce执行，所有节点并行处理。效率高
 
