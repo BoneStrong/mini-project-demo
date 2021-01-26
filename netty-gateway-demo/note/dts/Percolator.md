@@ -136,7 +136,7 @@ Percolator 使用时间戳记维度实现数据的多版本化从而达到了sna
             - 是不是有自己时间戳加的锁，如果有对primary解锁(解锁指的是删除lock列)，且write列有当前start_ts。
                 表示事务其实前面已经处理完成了，不需要重复处理，直接转到步骤5；
             - 如果没有lock列没有start_ts加的锁，则事务失败。
-        2. write列写入{key,commit_ts}->{start_ts},标识事务完成（后面可以通过start_ts和key找到相应版本的data列的value）
+        2. **write列写入{key,commit_ts}->{start_ts},标识事务完成（后面可以通过start_ts和key找到相应版本的data列的value）**
         3. 从lock列中删除key的锁记录以释放锁
     5. primary commit如果成功则并行异步对其他rows执行4的处理
    
