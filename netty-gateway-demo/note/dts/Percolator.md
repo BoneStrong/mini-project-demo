@@ -55,7 +55,7 @@ Percolator在每行数据上抽象了五个COLUMN，其中三个跟事务相关:
     
     > 数据格式为: {key,start_ts} -> {value} ​        
      
-3. write column
+3. write column (感觉叫commit column更合适)
 
     已提交的数据信息，存储数据所对应的时间戳。
     
