@@ -13,12 +13,12 @@
     参与者在接收到协调者发来的消息后将执行响应的操作。
 
 ### 两阶段提交的缺点
- 1.同步阻塞问题。执行过程中，所有参与节点都是事务阻塞型的。
+ 1. 同步阻塞问题。执行过程中，所有参与节点都是事务阻塞型的。
     当参与者占有公共资源时，其他第三方节点访问公共资源不得不处于阻塞状态。
- 2.单点故障。由于协调者的重要性，一旦协调者发生故障。
+ 2. 单点故障。由于协调者的重要性，一旦协调者发生故障。
     参与者会一直阻塞下去。尤其在第二阶段，协调者发生故障，那么所有的参与者还都处于锁定事务资源的状态中，
     而无法继续完成事务操作。（如果是协调者挂掉，可以重新选举一个协调者，但是无法解决因为协调者宕机导致的参与者处于阻塞状态的问题）
- 3.数据不一致。在二阶段提交的阶段二中，当协调者向参与者发送commit请求之后，发生了局部网络异常或者在发送commit请求过程中协调者发生了故障，
+ 3. 数据不一致。在二阶段提交的阶段二中，当协调者向参与者发送commit请求之后，发生了局部网络异常或者在发送commit请求过程中协调者发生了故障，
     这会导致只有一部分参与者接受到了commit请求。而在这部分参与者接到commit请求之后就会执行commit操作。
     但是其他部分未接到commit请求的机器则无法执行事务提交。于是整个分布式系统便出现了数据部一致性的现象。
 
@@ -149,18 +149,26 @@ PreCommit是一个缓冲，保证了在最后提交阶段之前各参与节点�
 
 coordinator接收完participant的反馈(vote)之后，进入阶段2，给各个participant发送准备提交(prepare to commit)指令。
 participant接到准备提交指令后可以锁资源，但要求相关操作必须可回滚。
-coordinator接收完确认(ACK)后进入阶段3、进行commit/abort，3PC的阶段3与2PC的阶段2无异。协调者备份(coordinator watchdog)、状态记录(logging)同样应用在3PC。
+coordinator接收完确认(ACK)后进入阶段3、进行commit/abort，3PC的阶段3与2PC的阶段2无异。
+协调者备份(coordinator watchdog)、状态记录(logging)同样应用在3PC。
 
  
 
 participant如果在不同阶段宕机，我们来看看3PC如何应对：
 
-- **阶段1**: coordinator或watchdog未收到宕机participant的vote，直接中止事务；宕机的participant恢复后，读取logging发现未发出赞成vote，自行中止该次事务
-- **阶段2**: coordinator未收到宕机participant的precommit ACK，但因为之前已经收到了宕机participant的赞成反馈(不然也不会进入到阶段2)，
-    coordinator进行commit；watchdog可以通过问询其他participant获得这些信息，过程同理；宕机的participant恢复后发现收到precommit或已经发出赞成vote，则自行commit该次事务
-- **阶段3**: 即便coordinator或watchdog未收到宕机participant的commit ACK，也结束该次事务；宕机的participant恢复后发现收到commit或者precommit，也将自行commit该次事务
+- **阶段1**: coordinator或watchdog未收到宕机participant的vote，直接中止事务；
+            宕机的participant恢复后，读取logging发现未发出赞成vote，自行中止该次事务
+  
+- **阶段2**: coordinator未收到宕机participant的precommit ACK，
+            但因为之前已经收到了宕机participant的赞成反馈(不然也不会进入到阶段2)， 
+            coordinator进行commit；watchdog可以通过问询其他participant获得这些信息，过程同理；
+            宕机的participant恢复后发现收到precommit或已经发出赞成vote，则自行commit该次事务
+  
+- **阶段3**: 即便coordinator或watchdog未收到宕机participant的commit ACK，也结束该次事务；
+            宕机的participant恢复后发现收到commit或者precommit，也将自行commit该次事务
 
-因为有了准备提交(prepare to commit)阶段，3PC的事务处理延时也增加了1个RTT，变为3个RTT(propose+precommit+commit)，但是它防止participant宕机后整个系统进入阻塞态，增强了系统的可用性，对一些现实业务场景是非常值得的。
+因为有了准备提交(prepare to commit)阶段，3PC的事务处理延时也增加了1个RTT，变为3个RTT(propose+precommit+commit)，
+但是它防止participant宕机后整个系统进入阻塞态，增强了系统的可用性，对一些现实业务场景是非常值得的。
 
 
 
@@ -178,7 +186,7 @@ participant如果在不同阶段宕机，我们来看看3PC如何应对：
 
 - 参与者返回 CanCommit 请求的响应后，等待第二阶段指令，若等待超时，则自动 abort，降低了阻塞；
 
-- 参与者返回 PreCommit 请求的响应后，等待第三阶段指令，若等待超时，则自动 commit 事务，也降低了阻塞；
+- **参与者返回 PreCommit 请求的响应后，等待第三阶段指令，若等待超时，则自动 commit 事务，也降低了阻塞**；
 
 **注意， 数据不一致问题仍然可能是存在，3pc这个算法并没有完美解决数据不一致问题。**
 
@@ -189,9 +197,27 @@ participant如果在不同阶段宕机，我们来看看3PC如何应对：
 
 > **实际上，很少会有系统实现3PC，多数现实的系统会通过复制状态机解决2PC阻塞的问题**。
 
-3PC并没有完美解决2PC的阻塞，也引入了新的问题。比如，如果失败模型不是失败-停止, 而是消息失败（消息延迟或网络分区），那样3PC会产生不一致的情形。
+**3PC并没有完美解决2PC的阻塞，也引入了新的问题。比如，如果失败模型不是失败-停止, 而是消息失败（消息延迟或网络分区），那样3PC会产生不一致的情形**。
 
-作者：邓小闲
+> 注意 ：在doCommit阶段，
+> 如果参与者无法及时接收到来自协调者的doCommit或者rebort请求时，会在等待超时之后，会继续进行事务的提交。
+> （其实这个应该是基于概率来决定的，当进入第三阶段时，说明参与者在第二阶段已经收到了PreCommit请求，
+> 那么协调者产生PreCommit请求的前提条件是他在第二阶段开始之前，收到所有参与者的CanCommit响应都是Yes。
+> （一旦参与者收到了PreCommit，意味他知道大家其实都同意修改了）
+> 所以，一句话概括就是，当进入第三阶段时，由于网络超时等原因，
+> 虽然参与者没有收到commit或者abort响应，但是它有理由相信：成功提交的几率很大。 ）
 
-链接：https://www.zhihu.com/question/422691164/answer/1496496450
+## 三阶段提交协议（3PC）存在的问题
+
+相对于2PC，3PC主要解决的单点故障问题，并减少阻塞，因为一旦参与者无法及时收到来自协调者的信息之后，他会默认执行commit。
+而不会一直持有事务资源并处于阻塞状态。
+但是这种机制也会导致数据一致性问题，因为，由于网络原因，协调者发送的abort响应没有及时被参与者接收到，
+那么参与者在等待超时之后执行了commit操作。这样就和其他接到abort命令并执行回滚的参与者之间存在数据不一致的情况。
+
+## 总结
+了解了2PC和3PC之后，我们可以发现，无论是二阶段提交还是三阶段提交都无法彻底解决分布式的一致性问题。
+Google Chubby的作者Mike Burrows说过， there is only one consensus protocol, 
+and that’s Paxos” – all other approaches are just broken versions of Paxos. 
+意即世上只有一种一致性算法，那就是Paxos，所有其他一致性算法都是Paxos算法的不完整版。
+
 
