@@ -26,7 +26,7 @@
 - **MasterExecThread**：DAG任务切分、任务提交监控、各种不同命令类型的逻辑处理
 - **MasterTaskExecThread**：负责任务的持久化
 
-个人认为master是easheduler最核心的部分
+master是easheduler最核心的部分
 
 1. 入口是masterServer,启动的时候开启zk心跳检测线程
 2. quartz初始化
@@ -93,10 +93,13 @@ WorkerServer服务启动时向Zookeeper注册临时节点，并维持心跳
 
    easyscheduler是使用curator创建分布式锁，使用的是临时节点，客户端宕机则删除节点，没有分布式死锁的问题。但是这里还有其他几个个问题：
 
-   	-  不配置zookeeper.escheduler.lock.workers的话，所有work节点都需要争抢同一个分布式锁。同时只有一个work节点在拉取任务，保证了安全性，但执行效率略低。如果可以让master下发任务时指定工作节点，work节点可以不需要分布式锁。master另外添加任务空闲检测功能，将长时间机器不执行的任务转移到活的工作节点上。
+   	-  不配置zookeeper.escheduler.lock.workers的话，所有work节点都需要争抢同一个分布式锁。
+         同时只有一个work节点在拉取任务，保证了安全性，但执行效率略低。
+         如果可以让master下发任务时指定工作节点，work节点可以不需要分布式锁。master另外添加任务空闲检测功能，
+         将长时间机器不执行的任务转移到活的工作节点上。
    	-  客户端宕机恢复后，任务可能被重复执行
 
-4. 根号任务字符串从数据库获取taskInstance。并标记执行的节点ip，执行时间等信息，创建linux工作目录。提交给TaskScheduleThread执行
+4. 根据任务字符串从数据库获取taskInstance。并标记执行的节点ip，执行时间等信息，创建linux工作目录。提交给TaskScheduleThread执行
 
 5. 任务执行完毕后从zk队列删除
 
