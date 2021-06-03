@@ -70,9 +70,9 @@ public class packageTest {
     private boolean isEOk(int[][] arr, int line, int i) {
         int num = 1;
         while (line >= num) {
-            if (arr[line - num][i] == 1
-                    || (i - num >= 0 && arr[line - num][i - num] == 1)
-                    || (i + num < arr[line - num].length && arr[line - num][i + num] == 1)) {
+            if (arr[line - num][i] == 1   //上面的纵列有，不能放
+                    || (i - num >= 0 && arr[line - num][i - num] == 1)  //左上角有，不能放
+                    || (i + num < arr[line - num].length && arr[line - num][i + num] == 1)) { //右上角有不能放
                 return false;
             }
             num++;
