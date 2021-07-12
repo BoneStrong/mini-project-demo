@@ -28,3 +28,9 @@ arthas追踪监控方法及方法体内部方法调用时，会找到当前Threa
 一些问题思考：
 B,C,D方法如果是异步运行时，其实链路还是有问题，这个时候需要规范异步代码的编写，统一使用规范的线程池
 
+
+参看资料：
+https://www.infoq.cn/article/javaagent-illustrated/ jvm premain agentmain
+https://www.cnblogs.com/stateis0/p/9062201.html
+https://blog.csdn.net/DD_Dddd/article/details/110457971 jvm attach机制
+
