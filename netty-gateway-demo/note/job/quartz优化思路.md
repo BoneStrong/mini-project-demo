@@ -83,3 +83,31 @@ public int hrw(String key) {
   
     
 
+### 思考2
+quartz效率慢，从源码流程可以看出主要是慢在两个地方：
+1. triggers的获取时，首先需要获取悲观锁，然后扫描全表，获取执行时间在30ms以内的triggers
+2. triggers执行前，需要先获取悲观锁
+
+这样的情况其实变相的让多个quartz实例串行执行trigger。不仅在trigger数量多的时候频繁扫表影响数据库性能，也没有充分利用多个quartz实例的机器性能，
+同时也是quartz主要慢的原因。
+
+所有要优化主要是3个方面：
+1. 减少或者杜绝全表扫描
+2. 多节点并行获取triggers
+3. 多节点并行执行triggers
+
+那么如何杜绝频繁扫描数据库表，并行获取triggers和执行triggers?
+##### 使用队列ttl设计
+队列ttl原理是给队列或者队列的消息设置ttl，队列里面的消息超过这个时间后会被转发到另一个`死信队列`，
+消费者监听消费这个`死信队列`即可达到定时消费任务的作用。
+
+简单实现：
+- 扫描数据库trigger表，计算并生成 triggerMessage 到相应的 ttl queue,比如下次触发在2s后， 那么这个消息放入 ttl_queue_2s
+- 2s后，消息被转发到了death_queue， master节点消费 death_queue，进行firedTrigger，生成 scheduler event 发送到另外一个队列.
+  数据库更新trigger状态和下次执行时间，并且生成新的triggerMessage 到ttl_queue 。
+- work消费 scheduler event
+
+引发问题：
+1. 什么时候扫描trigger表，重复扫表发送消息如何解决？
+2. trigger状态更新如何减少数据库影响？
+
