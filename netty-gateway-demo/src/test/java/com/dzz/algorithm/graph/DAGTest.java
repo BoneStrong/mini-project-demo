@@ -167,4 +167,9 @@ public class DAGTest {
         System.out.println(dag);
 
     }
+
+    @Test
+    public void testInteger(){
+        System.out.println(Integer.MAX_VALUE);
+    }
 }

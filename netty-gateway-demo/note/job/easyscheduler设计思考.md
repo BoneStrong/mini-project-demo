@@ -19,7 +19,7 @@ DAG优化执行方案如下：
 1. master解析DAG1，将s,a,b,c,d 生成taska,b,c,d定义入库(task a定义包括前置依赖s,后续c、d，所属processDef),
    发送DagEvent(Dag1)到消息队列。 
 2. master收到DagEvent(Dag1),开始执行Dag,分析生成首个task s。
-   判断task a是否需要分片：
+   判断task s是否需要分片：
    - 需要分片
      根据分片信息（分片数量，分片规则）生成子task， 
      对task执行进行work节点负载均衡（采用工作组_加编号N形式，不采用Ip是为了work节点的扩展性），标记执行节点编号 
