@@ -27,7 +27,7 @@ public class MmpTest {
 
     private AtomicInteger writePos = new AtomicInteger(0);
 
-    private String filePath = "D:\\temp\\temp.txt";
+    private String filePath = "D:\\temp\\mapByteBufferTest.txt";
 
     private int fileSize = 1024 * 1024;
 
@@ -49,10 +49,11 @@ public class MmpTest {
     }
 
     @Test
-    public void testReadAndWrite() throws InterruptedException {
+    public void testReadAndWriteAndForce() throws InterruptedException {
         new Thread(this::write).start();
         new Thread(this::read).start();
-        Thread.sleep(1000 * 50);
+        new Thread(this::force).start();
+        Thread.sleep(1000 * 120);
     }
 
 
@@ -71,7 +72,7 @@ public class MmpTest {
     private void read() {
         MappedByteBuffer slice = (MappedByteBuffer) writeBuffer.slice();
         slice.position(0);
-        while (readPos.get() < 5000) {
+        while (readPos.get() < fileSize - 10) {
             if (readPos.get() < writePos.get()) {
                 slice.position(readPos.get());
                 byte[] bytes = new byte[10];
@@ -80,6 +81,18 @@ public class MmpTest {
                 readPos.addAndGet(10);
             }
 
+        }
+        System.out.println("read pos is : " + readPos.get());
+    }
+
+    private void force() {
+        while (true) {
+            try {
+                Thread.sleep(20);
+                writeBuffer.force();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -111,4 +124,5 @@ public class MmpTest {
             e.printStackTrace();
         }
     }
+
 }
