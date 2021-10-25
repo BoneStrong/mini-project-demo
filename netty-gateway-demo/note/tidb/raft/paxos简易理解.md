@@ -45,9 +45,9 @@ Paxos算法流程中的每条消息描述如下：
 
 两个承诺：
 
-1. 不再接受Proposal ID小于等于（注意：这里是<= ）当前请求的Prepare请求。
+1. 不再接受Proposal ID **小于等于** （注意：这里是<= ）当前请求的Prepare请求。
 
-2. 不再接受Proposal ID小于（注意：这里是< ）当前请求的Propose请求。
+2. 不再接受Proposal ID **小于** （注意：**这里是<** ）当前请求的Propose请求。
 
 一个应答：
 
@@ -68,7 +68,7 @@ Paxos算法流程中的每条消息描述如下：
 
 3. Acceptor比较n和minProposal，如果n>minProposal，minProposal=n，并且将 acceptedProposal 和 acceptedValue 返回；
 
-4. Proposer接收到过半数回复后，如果发现有acceptedValue返回，将所有回复中acceptedProposal最大的acceptedValue作为本次提案的value，否则可以任意决定本次提案的value；
+4. Proposer接收到过半数回复后，如果发现有acceptedValue返回，**将所有回复中acceptedProposal最大的acceptedValue**作为本次提案的value，否则可以任意决定本次提案的value；
 
 5. 到这里可以进入第二阶段，广播Accept (n,value) 到所有节点；
 
@@ -84,31 +84,31 @@ Paxos算法流程中的每条消息描述如下：
 
 `提议者1`的prepare阶段：
 
-1. `提议者1`向3个接受者广播preare请求(p1,v1)
+1. `提议者1`向3个接受者广播prepare请求(p1,v1)
 2. 3个接受者开始没有任何记录（acceptProposalId=null,accpectValue=null），按照上面promise原则（只接受ProposalId>acceptProposalId的prepare请求），
-    于是记录(p1,v1) ，响应prepare请求成功，因为之前接收者没有记录任何值，返回（acceptProposalId=null,accpectValue=null）
+    于是记录(p1,v1) ，响应prepare请求成功，因为之前接收者没有记录任何值，返回（acceptProposalId=null,acceptValue=null）
 
-`提议者1`获得了prepare的半数响应，进入他的accpect阶段：
+`提议者1`获得了prepare的半数响应，进入他的accept阶段：
 
 3. `提议者1`向`接收者1`发起提议请求（p1,v1）,`接受者1`查看自己的记录，根据promise原则（只接受ProposalId>=acceptProposalId的Propose请求）,返回接受成功，
-    并记录（acceptProposalId=p1,accpectValue=v1）
+    并记录（acceptProposalId=p1,acceptValue=v1）
 
 这个时候`提议者2`也突然发起了prepare阶段：
 
-4. `提议者2`向3个接受者广播preare请求(p2,v2)，其中p2>p1。`接受者1`和`接受者2`收到prepare请求
-5. 对于`接受者1`来说，因为acceptProposalId=p1<p2，响应prepare成功，同时返回（acceptProposalId=p1,accpectValue=v1）。
-    对于`接受者2`来说，还没有来的及接受提议者1的请求，依旧是（acceptProposalId=null,accpectValue=null），
-    记录(p2,v2)，响应成功，同时返回（acceptProposalId=null,accpectValue=null）。
+4. `提议者2`向3个接受者广播prepare请求(p2,v2)，其中p2>p1。`接受者1`和`接受者2`收到prepare请求
+5. 对于`接受者1`来说，因为acceptProposalId=p1<p2，响应prepare成功，同时返回（acceptProposalId=p1,acceptValue=v1）。
+    对于`接受者2`来说，还没有来的及接受提议者1的请求，依旧是（acceptProposalId=null,acceptValue=null），
+    记录(p2,v2)，响应成功，同时返回（acceptProposalId=null,acceptValue=null）。
 
 这个时候`提议者2`也获得了prepare的半数响应，同样进入accept阶段:
 
 6. `提议者1`继续向`接受者2`和`接受者3`发起propose请求。对于`接受者2`来说，由于他记录收到最大的prepare请求id是p2,于是拒绝提议者1的请求。
-    而对于`接收者3`，记录的prepare请求Id最大的依旧是p1，于是接受请求，设置（acceptProposalId=p1,accpectValue=v1）。
+    而对于`接收者3`，记录的prepare请求Id最大的依旧是p1，于是接受请求，设置（acceptProposalId=p1,acceptValue=v1）。
     这里`提议者1`其实已经获得了accept的半数响应，得到了一致性的值v1。
-7. `提议者2`收到5流程`接收者1`和`接受者2`的结果，得知之前有更早`提议1`被接受，且值为v1，于是把自己的值也改成v1
+7. `提议者2`收到5流程`接收者1`和`接受者2`的结果，得知之前有更早`提议1`(返回的结果中acceptProposalId最大的是p1)被接受，且值为v1，**于是把自己的值也改成v1**
     (这里其实很大程度体现了paxos算法的思想，算法是为了获得一个一致性结果，这里改变值是为了更快的获得一个一致性的结果)。
 8. `提议2`向`接受者1`和`接受者2`发起propose请求。对于`接受者1`和`接受者2`来说，由于他记录收到最大的prepare请求id是p2,于是接受提议者2的请求，
-    记录（acceptProposalId=p2,accpectValue=v1）并响应成功。（接受者3其实也会响应成功）这个时候提议者2也获得accepte阶段的半数响应，最终的一致性的值也是v1。
+    记录（acceptProposalId=p2,accpectValue=v1）并响应成功。（接受者3其实也会响应成功）这个时候提议者2也获得accept阶段的半数响应，最终的一致性的值也是v1。
 
 #### 例子的一些问题
 
@@ -134,9 +134,13 @@ prepare阶段的冲突导致活锁问题：
 1. prepare1阶段，n1-n3节点prepare成功
 
 2. prepare2阶段，n3-n5节点prepare成功
+   
 3. prepare1进入accept1阶段，请求propose到n3-n5响应失败，因为n3-n5记录的prepare Id p2>p1
+   
 4. 这个时候又有提议发起prepare3阶段，n1-n3节点prepare成功
+   
 5. prepare2进入accept2阶段，请求propose到n1-n1响应失败，因为n1-n1记录的prepare Id p3>p2
+   
 6. 依次循环，prepare阶段成功，accept阶段失败...
 
 
@@ -211,12 +215,12 @@ epaxos算法的创新
 Paxos算法的设计过程就是从正确性开始的，对于分布式一致性问题，很多进程提出（Propose）不同的值，共识算法保证最终只有其中一个值被选定，Safety表述如下：
 
 - 只有被提出（Propose）的值才可能被最终选定（Chosen）。
-- 只有**一**个值会被选定（Chosen）。
+- 只有一个值会被选定（Chosen）。
 - 进程只会获知到已经确认被选定（Chosen）的值。
 
 Paxos以这几条约束作为出发点进行设计，只要算法最终满足这几点，正确性就不需要证明了。Paxos算法中共分为三种参与者：Proposer、Acceptor以及Learner，通常实现中每个进程都同时扮演这三个角色。
 
-Proposers向Acceptors提出Proposal，为了保证最多只有**一**个值被选定（Chosen），Proposal必须被超过一半的Acceptors所接受（Accept），且每个Acceptor只能接受一个值。
+Proposers向Acceptors提出Proposal，为了保证最多只有一个值被选定（Chosen），Proposal必须被超过一半的Acceptors所接受（Accept），且每个Acceptor只能接受一个值。
 
 为了保证正常运行（必须有值被接受），所以Paxos算法中：
 
@@ -245,7 +249,8 @@ Proposers向Acceptors提出Proposal，为了保证最多只有**一**个值被�
 
 
 
-如果满足**P2a**则一定满足**P2**，显然，因为只有首先被接受才有可能被最终选定。但是**P2a**依然难以实现，因为acceptor很有可能并不知道之前被选定的Proposal（恰好不在接受它的多数派中），因此进一步延伸：
+如果满足**P2a**则一定满足**P2**，显然，因为只有首先被接受才有可能被最终选定。但是**P2a**依然难以实现，
+因为acceptor很有可能并不知道之前被选定的Proposal（恰好不在接受它的多数派中），因此进一步延伸：
 
 
 
@@ -262,11 +267,16 @@ Proposers向Acceptors提出Proposal，为了保证最多只有**一**个值被�
 
 满足**P2c**即满足**P2b**即满足**P2a**即满足**P2**。至此Paxos提出了Proposer的执行流程，以满足**P2c**：
 
-1. Proposer选择一个新的编号n，向超过一半的Acceptors发送请求消息，Acceptor回复: (a)承诺不会接受编号比n小的proposal，以及(b)它所接受过的编号比n小的最大Proposal（如果有）。该请求称为Prepare请求。
-2. 如果Proposer收到超过一半Acceptors的回复，它就可以提出Proposal，Proposal的值为收到回复中编号最大的Proposal的值，如果没有这样的值，则可以自由提出任何值。
+1. Proposer选择一个新的编号n，向超过一半的Acceptors发送请求消息，Acceptor回复: 
+   - 承诺不会接受编号比n小的proposal
+   - 它所接受过的编号比n小的最大Proposal（如果有）。该请求称为Prepare请求。
+2. 如果Proposer收到超过一半Acceptors的回复，**它就可以提出Proposal，Proposal的值为收到回复中编号最大的Proposal的值，如果没有这样的值，则可以自由提出任何值**。
 3. 向收到回复的Acceptors发送Accept请求，请求对方接受提出的Proposal。
 
-仔细品味Proposer的执行流程，其完全吻合**P2c**中的要求，但你可能也发现了，当多个Proposer同时运行时，有可能出现没有任何Proposal可以成功被接受的情况（编号递增的交替完成第一步），这就是Paxos算法的Liveness问题，或者叫“活锁”，论文中建议通过对Proposers引入选主算法选出Distinguished Proposer来全权负责提出Proposal来解决这个问题，但是即使在出现多个Proposers同时提出Proposal的情况时，Paxos算法也可以保证Safety。
+仔细品味Proposer的执行流程，其完全吻合**P2c**中的要求，但你可能也发现了，当多个Proposer同时运行时，
+有可能出现没有任何Proposal可以成功被接受的情况（编号递增的交替完成第一步），
+这就是Paxos算法的Liveness问题，或者叫“活锁”，论文中建议通过对Proposers引入选主算法选出Distinguished Proposer来全权负责提出Proposal来解决这个问题，
+但是即使在出现多个Proposers同时提出Proposal的情况时，Paxos算法也可以保证Safety。
 
 接下来看看Acceptors的执行过程，和我们对**P2**做的事情一样，我们对**P1**进行延伸：
 
