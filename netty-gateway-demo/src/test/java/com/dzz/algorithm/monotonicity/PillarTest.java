@@ -27,13 +27,13 @@ public class PillarTest {
      * 放入第一个元素时，栈为空，放入栈顶
      *
      *
-     * 这里应该用单调递增栈，找到后面第一个比他小的元素
+     * 这里应该用单调递减栈，找到后面第一个比他小的元素
      * */
     @Test
     public void test() {
         int[] zuZhi = {6, 4, 5, 2, 4, 3, 9};
         Stack<Integer> stack = new Stack<>();
-        //单调递增栈下标
+        //单调递减栈下标
         int[] right = new int[zuZhi.length];
         int[] left = new int[zuZhi.length];
         for (int i = 0; i < zuZhi.length; i++) {

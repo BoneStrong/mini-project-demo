@@ -30,6 +30,7 @@ public class KNumTest {
      * */
     @Test
     public void kNumTest() {
+        System.out.println(kNum(new int[]{1, 2, 3, 4, 5, 6, 7, 8}, 4, 13));
         System.out.println(kNum(new int[]{1, 2, 3, 4}, 2, 5));
     }
 
@@ -58,7 +59,7 @@ public class KNumTest {
             for (int j = 1; j < k + 1 && j <= i; j++) {
                 for (int t = 1; t < target + 1; t++) {
                     if (t >= arr[i - 1]) {
-                        //如果当前目标值t - arr[i - 1] >= 0,说明结果是可以加上之前[i - 1][j - 1][t - arr[i - 1]]的方案种数的
+                        //如果当前目标值t - arr[i - 1] >= 0,说明结果是可以加上之前[i - 1][j - 1][t - arr[i - 1]]的方案取t-arr[i-1]得到
                         f[i][j][t] = f[i - 1][j - 1][t - arr[i - 1]];
                     }
                     //最终存在两种可能，一种是加上之前t - A[i - 1]的方案种数，一种是之前dp[i - 1][j][t]的方案种数

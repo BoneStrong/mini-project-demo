@@ -68,7 +68,7 @@ public class HeapTreeTest {
             }
 
             if (temp != index) {
-                //子节点比父节点小，需要继续交换
+                //子节点比父节点大，需要继续交换
                 swap(temp, index);
                 index = temp;
             } else {
