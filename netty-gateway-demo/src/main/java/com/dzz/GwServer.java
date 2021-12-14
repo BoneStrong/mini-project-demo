@@ -60,6 +60,5 @@ public class GwServer {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
-
     }
 }

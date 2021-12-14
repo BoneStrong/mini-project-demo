@@ -60,8 +60,9 @@ public class EditorString {
                 if (source.charAt(i - 1) == target.charAt(j - 1))
                     dp[i][j] = dp[i - 1][j - 1];
                 else {
-                    dp[i][j] = Math.min(dp[i - 1][j - 1] + 1, dp[i - 1][j] + 1);
-                    dp[i][j] = Math.min(dp[i][j] , dp[i][j - 1] + 1);
+                    //三种操作，插入，删除，替换
+                    dp[i][j] = Math.min(dp[i - 1][j - 1] + 1, dp[i - 1][j] + 1);//替换，插入
+                    dp[i][j] = Math.min(dp[i][j] , dp[i][j - 1] + 1);//删除 第i
 
                 }
             }
