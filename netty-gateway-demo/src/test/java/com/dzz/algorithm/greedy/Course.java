@@ -2,14 +2,13 @@ package com.dzz.algorithm.greedy;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class Course {
 
     /*
-     * 这里有 n 门不同的在线课程，按从 1 到 n编号。
+     * 课程表三
+     *  这里有 n 门不同的在线课程，按从 1 到 n编号。
      * 给你一个数组 courses ，其中 courses[i] = [durationi, lastDayi]
      * 表示第 i 门课将会 持续 上 durationi 天课，并且必须在不晚于 lastDayi 的时候完成。
      *
@@ -42,7 +41,8 @@ public class Course {
     @Test
     public void test() {
         int[][] arr = {{100, 200}, {200, 1300}, {1000, 1250}, {2000, 3200}};
-        System.out.println(course3(arr));
+//        System.out.println(course3(arr));
+        System.out.println(scheduleCourse(arr));
     }
 
     public class Pair {
@@ -125,4 +125,29 @@ public class Course {
 
         return dp[dp.length - 1];
     }
+
+    /*
+     * 大根堆
+     *
+     * courses = [[100, 200], [1000, 1250], [200, 1300], [2000, 3200]]
+     *
+     * 时间复杂度：O(nlogn)
+     * 空间复杂度：O(n)
+     * */
+    public int scheduleCourse(int[][] courses) {
+        Arrays.sort(courses, Comparator.comparingInt(a -> a[1]));//结束时间排序
+        PriorityQueue<Integer> q = new PriorityQueue<>((a, b) -> b - a);
+        int sum = 0;//起始时间
+        for (int[] c : courses) {
+            int d = c[0], e = c[1];//持续时间d,结束时间e
+            sum += d;
+            q.add(d);
+            if (sum > e) sum -= q.poll(); //学习总时长剔除最长的课程
+            //因为课程的贡献度都是1，如果当前学的课程不符合话，
+            // 可以去掉现在和之前学习时间最长的课程，以便腾出时间后面去学习更多的课程
+        }
+        return q.size();
+    }
+
+
 }
