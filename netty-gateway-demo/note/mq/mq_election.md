@@ -5,7 +5,7 @@ kafka选举分为3部分
 
     zk选举
     
-2. partition选举（分区副本选举机制）
+2. partition选举（分区副本选举机制） **优先副本选举机制**
     
     在kafka的集群中，会存在着多个主题topic，在每一个topic中，又被划分为多个partition，为了防止数据不丢失，
     每一个partition又有多个副本，在整个集群中，总共有三种副本角色：
