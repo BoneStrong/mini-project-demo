@@ -1,5 +1,7 @@
 package com.dzz.algorithm.string;
 
+import org.junit.Test;
+
 public class LongSameSubStringTest {
 
     /*
@@ -25,4 +27,35 @@ public class LongSameSubStringTest {
      * 全部都归结为一个公式即可，二维数组默认值为0
      *
      * */
+    public String lcs(String s, String t) {
+//        int[][] arr = new int[s.length()][t.length()];
+        int[][] dp = new int[s.length()][t.length()];
+        // init arr
+        for (int i = 0; i < s.length(); i++) {
+            for (int j = 0; j < t.length(); j++) {
+                dp[i][j] = s.charAt(i) == t.charAt(j) ? 1 : 0;
+            }
+        }
+        //设dp[i][j]是字符串s(0,i),t(0,j)的最长公共字串值
+        int max = 0;
+        int maxi = 0;
+
+        for (int i = 1; i < s.length(); i++) {
+            for (int j = 1; j < t.length(); j++) {
+                dp[i][j] = s.charAt(i) == t.charAt(j) ? dp[i - 1][j - 1] + 1 : 0;
+                if (dp[i][j] > max) {
+                    max = dp[i][j];
+                    maxi = i;
+                }
+            }
+        }
+
+        return s.substring(maxi - max + 1, maxi + 1);
+    }
+
+    @Test
+    public void test() {
+        System.out.println(lcs("acbcbcef", "abcbced"));
+        System.out.println(lcs("acbcbced", "abcbced"));
+    }
 }

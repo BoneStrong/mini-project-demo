@@ -2,46 +2,9 @@ package com.dzz.algorithm.tree;
 
 import org.junit.Test;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class SameWayTest {
-
-    class ThreeTuple {
-        Integer val; //最大边数的值
-        int left;//左边的边数
-        int right;//右边的边数
-
-        public ThreeTuple(Integer val, int left, int right) {
-            this.val = val;
-            this.left = left;
-            this.right = right;
-        }
-
-        public Integer getVal() {
-            return val;
-        }
-
-        public ThreeTuple setVal(Integer val) {
-            this.val = val;
-            return this;
-        }
-
-        public int getLeft() {
-            return left;
-        }
-
-        public ThreeTuple setLeft(int left) {
-            this.left = left;
-            return this;
-        }
-
-        public int getRight() {
-            return right;
-        }
-
-        public ThreeTuple setRight(int right) {
-            this.right = right;
-            return this;
-        }
-    }
 
     /*
      * 给定一个二叉树，找到最长的路径，这个路径中的每个节点具有相同值。
@@ -70,40 +33,57 @@ public class SameWayTest {
      *
      *
      * */
-    private ThreeTuple sameWay(TreeNode t) {
-        if (t == null) return null;
+    @Test
+    public void test() {
+        AtomicInteger v = new AtomicInteger(0);
+        TreeNode treeNode = new TreeNode().setVal(5)
+                .setLeft(new TreeNode().setVal(3)
+                        .setLeft(new TreeNode().setVal(1))
+                        .setRight(new TreeNode().setVal(2)))
+                .setRight(new TreeNode().setVal(5)
+                        .setRight(new TreeNode().setVal(5)));
 
-        ThreeTuple leftT = sameWay(t.getLeft());
-        ThreeTuple rightT = sameWay(t.getRight());
-
-        if (leftT == null && rightT == null) return new ThreeTuple(t.getVal(), 0, 0);
-
-        if (leftT == null)
-            leftT = new ThreeTuple(null, 0, 0);
-        if (rightT == null)
-            rightT = new ThreeTuple(null, 0, 0);
-
-        //左右值和父节点值一样
-        if (t.getLeft() != null && t.getRight() != null
-                && (t.getLeft().getVal() == t.getRight().getVal())
-                && leftT.getVal() == t.getVal()
-        ) {
-            //左右边值也是一样
-
-        }
+        sameValueWay(treeNode, v);
+        System.out.println(v.get());
 
 
-        if (t.getLeft() != null) {
-            if (t.getLeft().getVal() == leftT.val && leftT.val == t.getVal()) {
+        v.set(0);
+        TreeNode treeNode2 = new TreeNode().setVal(5)
+                .setLeft(new TreeNode().setVal(4)
+                        .setLeft(new TreeNode().setVal(4))
+                        .setRight(new TreeNode().setVal(4)))
+                .setRight(new TreeNode().setVal(3)
+                        .setRight(new TreeNode().setVal(5)));
 
-            }
-        }
+        sameValueWay(treeNode2, v);
+        System.out.println(v.get());
 
-        return null;
+
     }
 
-    @Test
-    private void test() {
 
+    /*
+     * 如果子节点和父节点的值一样，那么父节点的同值路径=子节点的同源路径+1
+     * 否则，父节点的同源路径=0；
+     * 使用一个全局变量保留树中出现的最大路径值，这样遍历一次即可求出最大同源路径值
+     * */
+    public int sameValueWay(TreeNode treeNode, AtomicInteger v) {
+        if (treeNode == null) return 0;
+        int left = 0;
+        int right = 0;
+        if (treeNode.getLeft() != null) {
+            int leftValue = sameValueWay(treeNode.getLeft(), v);
+            if (treeNode.getVal() == treeNode.getLeft().getVal())
+                left = 1 + leftValue;
+        }
+        if (treeNode.getRight() != null) {
+            int rightValue = sameValueWay(treeNode.getRight(), v);
+            if (treeNode.getVal() == treeNode.getRight().getVal())
+                right = 1 + rightValue;
+        }
+        //如果左右节点值相等，那么left,right必然！=0；如果其中左右不相当，left和right必然有一个=0；
+        //那么当前节点的最大同源路径就是left+right
+        v.set(Math.max(v.get(), left + right));
+        return Math.max(left, right);
     }
 }
