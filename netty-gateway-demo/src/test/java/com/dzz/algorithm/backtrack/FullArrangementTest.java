@@ -60,7 +60,7 @@ public class FullArrangementTest {
         for (int i = begin; i < nums.length; i++) {
             swap(nums, i, begin);
             upset(nums, begin + 1);
-            swap(nums, i, begin);
+            swap(nums, i, begin);//回溯，换回来
         }
 
     }
