@@ -30,6 +30,7 @@ public class GoodWorkTimeTest {
     @Test
     public void test() {
         System.out.println(goodWorkTime(new int[]{9, 9, 6, 0, 6, 6, 9}));//3
+        System.out.println(longSlope(new int[]{6, 0, 8, 2, 1, 5}));//3
     }
 
     /*
@@ -42,8 +43,14 @@ public class GoodWorkTimeTest {
      * 【根据以往的经验，单调栈可以快速求最近的元素
      * 那么如果求最远的元素，可以单调栈找到最近的元素后继续找这个元素的最近】
      *
-     * 从前往后单调递增
-     * 从后往前单调递减
+     * 要求区间内最大的差值呢？比如一个数组A[6,0,8,2,1,5],要求出A[i]<A[j]的最长区间，其中i<j
+     * 按照贪心的原则就是尽量找到最小的左边界和找到最大的右边界下标
+     * 假设确认了右边界R，有两个左边界下标 L1<L2,如果其中L2是最优的左边界，那么肯定v[L2]<v[L1]
+     * 因为如果v[L1]<v[L2],那么L1才是最小的左边界
+     *
+     * 这样找左边界的问题其实转化为找最小值问题
+     * 从左到右遍历，构建单调递减栈，因为是往栈顶插值，栈顶的值是最小值，入栈的元素是可能的左边界
+     *
      *
      * 为什么要从后往前找右边界呢？
      *
@@ -82,5 +89,22 @@ public class GoodWorkTimeTest {
         }
 
         return result;
+    }
+
+    public int longSlope(int[] highs) {
+        int result = 0;
+        Stack<Integer> stack = new Stack<>();
+        for (int i = 0; i < highs.length; i++) {
+            if (stack.isEmpty() || highs[stack.peek()] > highs[i])
+                stack.push(i);
+        }
+
+        for (int i = highs.length - 1; i >= 0; i--) {
+            if (i < result + 1) break;
+            while (!stack.isEmpty() && highs[i] > highs[stack.peek()]) {
+                result = Math.max(result, i - stack.pop());
+            }
+        }
+        return result + 1;
     }
 }
