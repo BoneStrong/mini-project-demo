@@ -113,6 +113,7 @@ docker run -d --name=dzz-grafana -p 3000:3000 grafana/grafana
 访问 http://127.0.0.1:3000 默认账号密码admin/admin 第一次登陆需要修改密码
 
 查看
+rest接口相关命令 MetricsCommand   CacheMetrics
 
 
 
