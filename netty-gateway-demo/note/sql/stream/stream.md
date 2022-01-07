@@ -23,7 +23,7 @@ Flink和spark在做流失计算的时候都借鉴了chandy-lamport算法的原�
 |p　   |  s0   |
 |q	   |  s0   |
 |p->q　| token |
-|q->o  | empty |
+|q->p  | empty |
 
 假如程序在此时崩溃了，那么在重启之后，就可以恢复到保存的快照状态继续执行。
 
