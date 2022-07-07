@@ -43,7 +43,7 @@ public class GwServerHandler extends SimpleChannelInboundHandler {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
         FullHttpRequest fullHttpRequest = null;
-        //todo 这里是聚合请求发送，参考zuul2的流式代理，分请求头和请求体代理转发，提高性能，减少内存使用
+        //todo 这里是聚合请求发送,参考zuul2的流式代理,分请求头和请求体代理转发,提高性能,减少内存使用
         if (msg instanceof FullHttpRequest) {
             fullHttpRequest = (FullHttpRequest) msg;
         }
@@ -69,3 +69,4 @@ public class GwServerHandler extends SimpleChannelInboundHandler {
         proxyClientChannel.pipeline().writeAndFlush(request);
     }
 }
+
