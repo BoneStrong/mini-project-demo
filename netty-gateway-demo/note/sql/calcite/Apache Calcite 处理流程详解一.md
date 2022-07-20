@@ -1,6 +1,8 @@
 ### 前置学习
 [使用calcite实现一个简单数据库](https://www.ctolib.com/topics-135940.html)
 
+Calcite的源码，看calcite-example-csv工程
+
 本文[来自](https://matt33.com/2019/03/07/apache-calcite-process-flow/#SQL-Parser-%E6%B5%81%E7%A8%8B)
 
 其他[calcite教程](https://blog.csdn.net/QXC1281/article/details/89070285)
