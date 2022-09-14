@@ -50,4 +50,20 @@ consisting largely of tech industry workers who claim that such **radical** tact
 
 虽然拉普的做法听起来很极端，但他是一场日益壮大的运动的一分子，这场运动主要由科技行业的工作者组成，他们声称这种激进的策略将帮助他们活得更好、更长。
 
+官司 lawsuit
+原告/ 起诉人 plaintiff
+被告 defendant
+控告 charge accuse sue prosecute
+法官 judge justic
+法庭/法院 court
+逮捕 arrest
+
+
+授权
+权威
+
+复杂的 complex  complicate
+
+temporary 暂时的
+contemporary 同时代的
 
